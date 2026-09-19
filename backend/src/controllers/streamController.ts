@@ -1,8 +1,8 @@
-import type { Request, Response, NextFunction } from "express";
-import { getAuth, clerkClient } from "@clerk/express";
-import { getLocalUser } from "../lib/users.js";
-import { getStreamChatServer, streamChatDisplayName, streamUserId } from "../lib/stream.js";
-import { getEnv } from "../lib/env.js";
+import type { Request, Response, NextFunction } from 'express';
+import { getAuth, clerkClient } from '@clerk/express';
+import { getLocalUser } from '../lib/users.js';
+import { getStreamChatServer, streamChatDisplayName, streamUserId } from '../lib/stream.js';
+import { getEnv } from '../lib/env.js';
 
 const env = getEnv();
 
@@ -10,13 +10,13 @@ export async function createStreamToken(req: Request, res: Response, next: NextF
   try {
     const { userId, isAuthenticated } = getAuth(req);
     if (!isAuthenticated || !userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
     const localUser = await getLocalUser(userId);
     if (!localUser) {
-      res.status(503).json({ error: "Account not synced yet" });
+      res.status(503).json({ error: 'Account not synced yet' });
       return;
     }
 
@@ -24,7 +24,7 @@ export async function createStreamToken(req: Request, res: Response, next: NextF
 
     const clerkUser = await clerkClient.users.getUser(userId);
 
-    const combined = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
+    const combined = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null;
 
     const name = streamChatDisplayName(
       localUser.role,
