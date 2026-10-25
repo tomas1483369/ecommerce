@@ -6,7 +6,7 @@
 
 A full-stack ecommerce application for product discovery, checkout, order management, and customer support.
 
-<img src="assets/store-preview.png" alt="Ecommerce storefront preview" width="100%" />
+<img width="1916" height="841" alt="Captura de pantalla 2026-10-25 130721" src="https://github.com/user-attachments/assets/f7ce0f11-6239-4f10-9ac8-7aacfaa3f8a7" />
 
 <p>
   <strong>React</strong> · <strong>Vite</strong> · <strong>Express</strong> · <strong>TypeScript</strong> · <strong>PostgreSQL</strong>
