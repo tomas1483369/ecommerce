@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { uploadImageToImageKit } from '../lib/imagekitUpload.js';
 import { IK_PRESETS, imageKitOptimizedUrl } from '../lib/imagekitUrl.js';
+import { LoaderIcon } from 'lucide-react';
+import { buttonClass, inputClass, labelClass } from '../lib/ui.js';
 
 export function AdminProductForm({ initial, saving, error, getToken, onCancel, onSubmit }) {
   const [slug, setSlug] = useState(initial?.slug ?? '');
@@ -8,7 +10,7 @@ export function AdminProductForm({ initial, saving, error, getToken, onCancel, o
   const [category, setCategory] = useState(initial?.category ?? 'General');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [priceCents, setPriceCents] = useState(initial ? String(initial.priceCents / 100) : '');
-  const [currency, setCurrency] = useState(initial?.currency ?? 'usd');
+  const [currency, setCurrency] = useState(initial?.currency ?? 'cop');
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl ?? '');
   const [imageKitFileId, setImageKitFileId] = useState(initial?.imageKitFileId ?? '');
   const [active, setActive] = useState(initial?.active ?? true);
@@ -62,7 +64,7 @@ export function AdminProductForm({ initial, saving, error, getToken, onCancel, o
     setUploadError(null);
 
     if (file.size > 10 * 1024 * 1024) {
-      setUploadError('File is too large (max 10MB).');
+      setUploadError('La imagen pesa demasiado (máximo 10 MB).');
       return;
     }
 
@@ -79,18 +81,18 @@ export function AdminProductForm({ initial, saving, error, getToken, onCancel, o
       setImageUrl(url);
       setImageKitFileId(fileId ?? '');
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : 'Upload failed');
+      setUploadError(err instanceof Error ? err.message : 'No se pudo subir la imagen');
     } finally {
       setUploadingImage(false);
     }
   }
 
   return (
-    <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit}>
-      <label className="form-control w-full">
-        <span className="label-text">Slug</span>
+    <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
+      <label className={labelClass}>
+        Slug
         <input
-          className="input input-bordered w-full"
+          className={inputClass}
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
           required
@@ -98,41 +100,41 @@ export function AdminProductForm({ initial, saving, error, getToken, onCancel, o
         />
       </label>
 
-      <label className="form-control w-full">
-        <span className="label-text">Name</span>
+      <label className={labelClass}>
+        Nombre
         <input
-          className="input input-bordered w-full"
+          className={inputClass}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
       </label>
 
-      <label className="form-control w-full">
-        <span className="label-text">Category</span>
+      <label className={labelClass}>
+        Categoría
         <input
-          className="input input-bordered w-full"
+          className={inputClass}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          placeholder="e.g. Audio, Workspace"
+          placeholder="Ej.: Celulares"
           required
         />
       </label>
 
-      <label className="form-control w-full">
-        <span className="label-text">Description</span>
+      <label className={labelClass}>
+        Descripción
         <textarea
-          className="textarea textarea-bordered h-24 w-full"
+          className={`${inputClass} h-24 resize-y`}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </label>
 
-      <div className="grid grid-cols-2 gap-2">
-        <label className="form-control">
-          <span className="label-text">Price (USD)</span>
+      <div className="grid grid-cols-2 gap-3">
+        <label className={labelClass}>
+          Precio
           <input
-            className="input input-bordered"
+            className={inputClass}
             type="number"
             step="0.01"
             min="0.01"
@@ -142,10 +144,10 @@ export function AdminProductForm({ initial, saving, error, getToken, onCancel, o
           />
         </label>
 
-        <label className="form-control">
-          <span className="label-text">Currency</span>
+        <label className={labelClass}>
+          Moneda
           <input
-            className="input input-bordered"
+            className={inputClass}
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
             required
@@ -153,51 +155,45 @@ export function AdminProductForm({ initial, saving, error, getToken, onCancel, o
         </label>
       </div>
 
-      <div className="form-control w-full">
-        <span className="label-text">Image</span>
-        <label className="mb-2 flex cursor-pointer flex-wrap items-center gap-2">
-          <span className="btn btn-secondary btn-sm shrink-0">
-            {uploadingImage ? (
-              <span className="loading loading-spinner loading-xs" />
-            ) : (
-              'Upload to ImageKit'
-            )}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Imagen</span>
+        <label className="flex cursor-pointer flex-wrap items-center gap-3">
+          <span className={buttonClass({ variant: 'outline', size: 'sm' })}>
+            {uploadingImage ? <LoaderIcon className="size-4 animate-spin" aria-hidden /> : null}
+            {uploadingImage ? 'Subiendo…' : 'Subir imagen'}
           </span>
-
-          <span className="text-xs text-base-content/60">PNG, JPG, WebP, GIF · max 10MB</span>
-
+          <span className="text-xs text-muted">PNG, JPG, WebP o GIF · máximo 10 MB</span>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
-            className="hidden"
+            className="sr-only"
             disabled={uploadingImage || saving}
             onChange={handleImageUpload}
           />
         </label>
 
-        <label className="label py-0">
-          <span className="label-text-alt text-base-content/60">Image URL (any HTTPS URL)</span>
+        <label className={labelClass}>
+          <span className="text-xs font-normal text-muted">O pega la URL de la imagen (HTTPS)</span>
+          <input
+            className={inputClass}
+            type="url"
+            value={imageUrl}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v !== imageUrl) setImageKitFileId('');
+              setImageUrl(v);
+            }}
+            placeholder="https://..."
+          />
         </label>
 
-        <input
-          className="input input-bordered w-full"
-          type="url"
-          value={imageUrl}
-          onChange={(e) => {
-            const v = e.target.value;
-            if (v !== imageUrl) setImageKitFileId('');
-            setImageUrl(v);
-          }}
-          placeholder="https://..."
-        />
-
         {uploadError ? (
-          <span className="mt-1 text-xs text-error" role="alert">
+          <span className="text-xs text-brand" role="alert">
             {uploadError}
           </span>
         ) : null}
         {imageUrl ? (
-          <div className="mt-2 overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2">
+          <div className="overflow-hidden rounded-2xl bg-paper-soft p-2">
             <img
               src={imageKitOptimizedUrl(imageUrl, IK_PRESETS.formPreview)}
               alt=""
@@ -208,28 +204,33 @@ export function AdminProductForm({ initial, saving, error, getToken, onCancel, o
         ) : null}
       </div>
 
-      <label className="label cursor-pointer justify-start gap-3">
+      <label className="flex cursor-pointer items-center gap-3 text-sm font-medium">
         <input
           type="checkbox"
-          className="toggle toggle-primary"
+          className="size-5 accent-brand"
           checked={active}
           onChange={(e) => setActive(e.target.checked)}
         />
-        <span className="label-text">Active in store</span>
+        Visible en la tienda
       </label>
 
       {error ? (
-        <div role="alert" className="alert alert-error text-sm">
-          Save failed (check slug unique &amp; fields).
-        </div>
+        <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm text-brand">
+          No se pudo guardar. Revisa que el slug no esté repetido y que los campos sean válidos.
+        </p>
       ) : null}
 
-      <div className="modal-action">
-        <button type="button" className="btn btn-ghost" onClick={onCancel}>
-          Cancel
+      <div className="mt-2 flex justify-end gap-3">
+        <button type="button" className={buttonClass({ variant: 'ghost' })} onClick={onCancel}>
+          Cancelar
         </button>
-        <button type="submit" className="btn btn-primary" disabled={saving || uploadingImage}>
-          {saving ? <span className="loading loading-spinner loading-sm" /> : 'Save'}
+        <button
+          type="submit"
+          className={buttonClass({ variant: 'primary' })}
+          disabled={saving || uploadingImage}
+        >
+          {saving ? <LoaderIcon className="size-4 animate-spin" aria-hidden /> : null}
+          {saving ? 'Guardando…' : 'Guardar'}
         </button>
       </div>
     </form>

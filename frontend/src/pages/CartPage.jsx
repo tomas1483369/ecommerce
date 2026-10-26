@@ -1,19 +1,23 @@
 import {
-  HeadphonesIcon,
-  LogInIcon,
+  LoaderIcon,
+  MessageCircleIcon,
   MinusIcon,
+  PackageIcon,
   PlusIcon,
-  ShoppingCartIcon,
   Trash2Icon,
 } from 'lucide-react';
+import { Link } from 'react-router';
+import { Show, SignInButton } from '@clerk/react';
 import useCartPage from '../hooks/useCartPage';
+import { Container } from '../components/Container';
 import EmptyCart from '../components/EmptyCart';
 import { CartSkeleton } from '../components/LoadingSkeletons';
 import { PageError } from '../components/PageError';
 import { IK_PRESETS, imageKitOptimizedUrl } from '../lib/imagekitUrl';
-import { Link } from 'react-router';
+import { buttonClass } from '../lib/ui';
 import { formatPrice } from '../utils/format';
-import { Show, SignInButton } from '@clerk/react';
+
+const MAX_QTY = 99;
 
 function CartPage() {
   const {
@@ -29,78 +33,80 @@ function CartPage() {
   } = useCartPage();
 
   return (
-    <div className="text-left">
-      <h1 className="mb-8 flex items-center gap-2 text-3xl font-bold text-base-content">
-        <ShoppingCartIcon className="size-8 text-primary" aria-hidden />
-        Cart
-      </h1>
+    <Container className="py-10 md:py-14">
+      <h1 className="mb-8 text-4xl font-extrabold tracking-tight">Carrito</h1>
 
       {items.length === 0 ? (
         <EmptyCart />
       ) : productsLoading ? (
         <CartSkeleton lines={items.length} />
       ) : productsError ? (
-        <PageError message="Could not load product details. Refresh the page or try again shortly." />
+        <PageError message="No pudimos cargar los productos del carrito. Recarga la página o intenta más tarde." />
       ) : (
-        <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
-          <ul className="space-y-4">
+        <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
+          <ul className="flex h-fit flex-col divide-y divide-line rounded-3xl bg-paper px-5 shadow-card md:px-6">
             {lines.map(({ line, product: p }) => (
-              <li
-                key={line.productId}
-                className="card card-side border border-base-300 bg-base-100 shadow-sm"
-              >
-                <figure className="p-4">
+              <li key={line.productId} className="flex gap-4 py-6 sm:gap-6">
+                <div className="size-24 shrink-0 overflow-hidden rounded-2xl bg-paper sm:size-28">
                   {p?.imageUrl ? (
                     <img
                       src={imageKitOptimizedUrl(p.imageUrl, IK_PRESETS.cartThumb)}
                       alt=""
-                      className="h-24 w-24 rounded-box object-cover"
+                      className="h-full w-full object-contain"
                       loading="lazy"
                       decoding="async"
                     />
                   ) : (
-                    <div className="h-24 w-24 rounded-box bg-base-300" />
+                    <span className="flex h-full w-full items-center justify-center">
+                      <PackageIcon className="size-8 text-line" aria-hidden />
+                    </span>
                   )}
-                </figure>
-                <div className="card-body min-w-0 flex-row flex-wrap items-center justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="card-title text-base">
-                      {p ? (
-                        <Link to={`/product/${p.slug}`} className="link-hover link-primary">
-                          {p.name}
-                        </Link>
-                      ) : (
-                        'Unknown product'
-                      )}
-                    </div>
+                </div>
+
+                <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
                     {p ? (
-                      <p className="text-sm text-base-content/60">
-                        {formatPrice(p.priceCents, p.currency)} each
+                      <Link
+                        to={`/product/${p.slug}`}
+                        className="text-lg font-bold hover:text-brand"
+                      >
+                        {p.name}
+                      </Link>
+                    ) : (
+                      <p className="text-lg font-bold">Producto no disponible</p>
+                    )}
+                    {p ? (
+                      <p className="mt-1 text-sm text-muted">
+                        {formatPrice(p.priceCents, p.currency)} c/u
                       </p>
                     ) : null}
-                    <div className="mt-2 flex flex-wrap items-center gap-3">
-                      <span className="text-sm text-base-content/70">Qty</span>
-                      <div className="join border border-base-300">
+
+                    <div className="mt-3 flex items-center gap-3">
+                      <div className="flex items-center rounded-full border border-line">
                         <button
                           type="button"
-                          className="btn btn-sm join-item gap-0 px-2.5"
+                          className="flex size-9 items-center justify-center rounded-full hover:bg-paper-soft"
                           onClick={() => setQty(line.productId, line.quantity - 1)}
-                          aria-label={line.quantity <= 1 ? 'Remove from cart' : 'Decrease quantity'}
+                          aria-label={
+                            line.quantity <= 1 ? 'Quitar del carrito' : 'Disminuir cantidad'
+                          }
                         >
                           <MinusIcon className="size-4" aria-hidden />
                         </button>
                         <span
-                          className="join-item flex min-w-10 items-center justify-center border border-base-300 bg-base-200 px-3 text-sm font-medium tabular-nums text-base-content"
+                          className="min-w-8 text-center text-sm font-bold tabular-nums"
                           aria-live="polite"
                         >
                           {line.quantity}
                         </span>
                         <button
                           type="button"
-                          className="btn btn-sm join-item gap-0 px-2.5"
-                          onClick={() => setQty(line.productId, Math.min(99, line.quantity + 1))}
-                          disabled={line.quantity >= 99}
-                          aria-label="Increase quantity"
+                          className="flex size-9 items-center justify-center rounded-full hover:bg-paper-soft disabled:opacity-40"
+                          onClick={() =>
+                            setQty(line.productId, Math.min(MAX_QTY, line.quantity + 1))
+                          }
+                          disabled={line.quantity >= MAX_QTY}
+                          aria-label="Aumentar cantidad"
                         >
                           <PlusIcon className="size-4" aria-hidden />
                         </button>
@@ -108,29 +114,32 @@ function CartPage() {
                       <button
                         type="button"
                         onClick={() => removeItem(line.productId)}
-                        className="btn btn-ghost btn-square btn-sm text-error hover:bg-error/10"
-                        aria-label="Remove from cart"
-                        title="Remove from cart"
+                        className="flex size-9 items-center justify-center rounded-full text-brand hover:bg-brand-soft"
+                        aria-label="Quitar del carrito"
+                        title="Quitar del carrito"
                       >
                         <Trash2Icon className="size-4" aria-hidden />
                       </button>
                     </div>
                   </div>
-                  <div className="text-right font-semibold text-base-content">
+
+                  <p className="text-lg font-bold tabular-nums sm:text-right">
                     {p ? formatPrice(p.priceCents * line.quantity, p.currency) : '-'}
-                  </div>
+                  </p>
                 </div>
               </li>
             ))}
           </ul>
 
-          <aside className="card border border-base-300 bg-base-100 p-6 shadow-md">
-            <div className="flex justify-between text-sm">
-              <span className="text-base-content/70">Subtotal</span>
-              <span className="font-semibold text-base-content">
-                {formatPrice(subtotal, lines[0]?.product?.currency ?? 'usd')}
+          <aside className="h-fit rounded-3xl bg-paper p-6 shadow-card md:p-8">
+            <h2 className="text-xl font-bold">Resumen</h2>
+            <div className="mt-5 flex justify-between text-[15px]">
+              <span className="text-body">Subtotal</span>
+              <span className="font-bold tabular-nums">
+                {formatPrice(subtotal, lines[0]?.product?.currency ?? 'cop')}
               </span>
             </div>
+            <p className="mt-2 text-sm text-muted">El envío se confirma al finalizar la compra.</p>
 
             <Show when="signed-in">
               <button
@@ -138,38 +147,38 @@ function CartPage() {
                 onClick={checkout}
                 disabled={checkoutLoading}
                 aria-busy={checkoutLoading}
-                className="btn btn-primary mt-6 w-full gap-2"
+                className={buttonClass({
+                  variant: 'primary',
+                  size: 'lg',
+                  className: 'mt-6 w-full',
+                })}
               >
                 {checkoutLoading ? (
-                  <span className="loading loading-spinner loading-sm" aria-hidden />
-                ) : (
-                  <ShoppingCartIcon className="size-4" aria-hidden />
-                )}
-                {checkoutLoading ? 'Opening checkout…' : 'Checkout securely'}
+                  <LoaderIcon className="size-5 animate-spin" aria-hidden />
+                ) : null}
+                {checkoutLoading ? 'Abriendo el pago…' : 'Ir a pagar'}
               </button>
             </Show>
 
             <Show when="signed-out">
               <SignInButton mode="modal">
-                <button type="button" className="btn btn-outline btn-primary mt-6 w-full gap-2">
-                  <LogInIcon className="size-4" aria-hidden />
-                  Sign in to checkout
+                <button
+                  type="button"
+                  className={buttonClass({ variant: 'dark', size: 'lg', className: 'mt-6 w-full' })}
+                >
+                  Inicia sesión para pagar
                 </button>
               </SignInButton>
             </Show>
 
-            <p className="mt-4 flex items-start gap-2 text-xs text-base-content/60">
-              <HeadphonesIcon className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden />
-              <span>
-                After payment, open your order for{' '}
-                <strong className="text-base-content">support chat</strong>. Video invites appear in
-                that thread.
-              </span>
+            <p className="mt-5 flex items-start gap-2 text-sm text-body">
+              <MessageCircleIcon className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden />
+              <span>Después del pago te atendemos por WhatsApp desde el detalle de tu pedido.</span>
             </p>
           </aside>
         </div>
       )}
-    </div>
+    </Container>
   );
 }
 export default CartPage;

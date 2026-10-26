@@ -1,4 +1,4 @@
-import { ListOrderedIcon, PackageIcon } from 'lucide-react';
+import { PackageIcon } from 'lucide-react';
 import { Link, useOutletContext } from 'react-router';
 import { IK_PRESETS, imageKitOptimizedUrl } from '../lib/imagekitUrl';
 import { formatPrice } from '../utils/format';
@@ -7,81 +7,71 @@ function OrderSummaryPage() {
   const { order, items } = useOutletContext();
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-md">
-      <div className="border-b border-base-300 bg-base-200/40 px-5 py-4 sm:px-6">
-        <h2 className="flex items-center gap-2 text-lg font-bold text-base-content">
-          <ListOrderedIcon className="size-5 text-primary" aria-hidden />
-          Line items
-        </h2>
-        <p className="mt-1 text-sm text-base-content/60">
-          {items.length} {items.length === 1 ? 'product' : 'products'} in this order
+    <section className="overflow-hidden rounded-3xl bg-paper shadow-card">
+      <div className="border-b border-line px-6 py-5">
+        <h2 className="text-xl font-bold">Productos</h2>
+        <p className="mt-1 text-sm text-muted">
+          {items.length} {items.length === 1 ? 'producto' : 'productos'} en este pedido
         </p>
       </div>
 
-      <ul className="divide-y divide-base-300">
+      <ul className="divide-y divide-line">
         {items.map((row) => (
-          <li key={row.id} className="px-4 py-5 sm:px-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6 sm:justify-between">
-              <div className="flex flex-1 gap-4">
+          <li
+            key={row.id}
+            className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex flex-1 gap-4">
+              <Link
+                to={`/product/${row.product.slug}`}
+                className="size-24 shrink-0 overflow-hidden rounded-2xl bg-paper"
+                tabIndex={-1}
+                aria-hidden
+              >
+                {row.product.imageUrl ? (
+                  <img
+                    src={imageKitOptimizedUrl(row.product.imageUrl, IK_PRESETS.orderLineThumb)}
+                    alt=""
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center">
+                    <PackageIcon className="size-8 text-line" aria-hidden />
+                  </span>
+                )}
+              </Link>
+              <div className="min-w-0">
                 <Link
                   to={`/product/${row.product.slug}`}
-                  className="group/img relative shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow-sm ring-1 ring-base-300/30 transition hover:ring-primary/40"
+                  className="text-lg font-bold hover:text-brand"
                 >
-                  <div className="h-24 w-24 sm:h-28 sm:w-28">
-                    {row.product.imageUrl ? (
-                      <img
-                        src={imageKitOptimizedUrl(row.product.imageUrl, IK_PRESETS.orderLineThumb)}
-                        alt=""
-                        className="h-full w-full object-cover transition duration-300 group-hover/img:scale-[1.03]"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-base-300 to-base-200">
-                        <PackageIcon className="size-10 text-base-content/30" aria-hidden />
-                      </div>
-                    )}
-                  </div>
+                  {row.product.name}
                 </Link>
-
-                <div className="min-w-0 flex-1">
-                  <Link
-                    to={`/product/${row.product.slug}`}
-                    className="link link-hover text-lg font-semibold leading-snug text-base-content"
-                  >
-                    {row.product.name}
-                  </Link>
-                  {row.product.category ? (
-                    <p className="mt-1 text-sm text-base-content/55">{row.product.category}</p>
-                  ) : null}
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-base-content/65">
-                    <span>Qty {row.quantity}</span>
-                    <span className="text-base-content/40">·</span>
-                    <span>{formatPrice(row.unitPriceCents, row.product.currency)} each</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex shrink-0 flex-col border-t border-base-300 pt-3 sm:border-t-0 sm:pt-0 sm:text-right">
-                <span className="text-xs font-medium uppercase tracking-wide text-base-content/45">
-                  Subtotal
-                </span>
-                <span className="text-xl font-bold tabular-nums text-base-content">
-                  {formatPrice(row.unitPriceCents * row.quantity, row.product.currency)}
-                </span>
+                {row.product.category ? (
+                  <p className="mt-1 text-sm text-muted">{row.product.category}</p>
+                ) : null}
+                <p className="mt-1.5 text-sm text-body">
+                  Cantidad: {row.quantity} · {formatPrice(row.unitPriceCents, row.product.currency)}{' '}
+                  c/u
+                </p>
               </div>
             </div>
+            <p className="text-lg font-bold tabular-nums sm:text-right">
+              {formatPrice(row.unitPriceCents * row.quantity, row.product.currency)}
+            </p>
           </li>
         ))}
       </ul>
 
-      <div className="flex items-center justify-between gap-4 border-t border-base-300 bg-base-200/50 px-5 py-5 sm:px-6">
-        <span className="text-lg font-semibold text-base-content">Total</span>
-        <span className="text-2xl font-bold tabular-nums text-primary">
-          {formatPrice(order.totalCents, 'usd')}
+      <div className="flex items-center justify-between border-t border-line bg-paper-soft px-6 py-5">
+        <span className="text-lg font-bold">Total</span>
+        <span className="text-2xl font-extrabold tabular-nums">
+          {formatPrice(order.totalCents)}
         </span>
       </div>
-    </div>
+    </section>
   );
 }
 export default OrderSummaryPage;

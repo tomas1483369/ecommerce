@@ -50,6 +50,7 @@ export async function apiFetch(path, opts = {}) {
   if (!res.ok) {
     const msg = typeof data?.error === 'string' ? data.error : res.statusText;
     const err = new Error(typeof msg === 'string' ? msg : 'Request failed');
+    err.status = res.status;
 
     if (res.status >= 500) {
       Sentry.captureException(err, {

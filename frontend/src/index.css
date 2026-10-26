@@ -1,5 +1,157 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
- @plugin "daisyui" {
-   themes: forest --default;
- }
+/* Design tokens: docs/diseno.md. Use them as classes (bg-brand, text-muted…), never raw hex in components. */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand: #e30613;
+  --color-brand-hover: #b8050f;
+  --color-brand-soft: #fdecee;
+  --color-brand-on-dark: #ff4a55;
+
+  --color-ink: #000000;
+  --color-ink-soft: #1d1d1f;
+  --color-graphite: #1c1c1e;
+  --color-graphite-card: #2c2c2e;
+
+  --color-paper: #ffffff;
+  --color-paper-soft: #f5f5f7;
+  --color-line: #e5e5e5;
+  --color-muted: #6e6e73;
+  --color-body: #3a3a3c;
+
+  --color-success: #1a7f37;
+  --color-success-soft: #e6f4ea;
+  --color-warning: #9a5b00;
+  --color-warning-soft: #fdf3e1;
+
+  /* motion: soft deceleration for hover lifts and image zooms */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* elevation: white cards on the light-gray page */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 10px 30px -14px rgb(0 0 0 / 0.14);
+  --shadow-card-hover: 0 2px 4px rgb(0 0 0 / 0.04), 0 22px 44px -16px rgb(0 0 0 / 0.22);
+}
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  /* Tailwind 4 no longer sets a pointer cursor on buttons */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary {
+    cursor: pointer;
+  }
+
+  a {
+    transition: color 150ms ease;
+  }
+
+  /* balanced headings and paragraphs without a lone word on the last line */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--color-brand);
+    color: #ffffff;
+  }
+}
+
+/* full-bleed rails: the scroller spans the whole section, but its first card lines up with the
+   Container content (max 1240px with 16/24px gutters) and snaps there; shadows are never clipped */
+@utility rail-gutter {
+  padding-inline: 1rem;
+  scroll-padding-inline: 1rem;
+
+  @media (width >= 48rem) {
+    padding-inline: max(1.5rem, calc((100% - 1240px) / 2 + 1.5rem));
+    scroll-padding-inline: max(1.5rem, calc((100% - 1240px) / 2 + 1.5rem));
+  }
+}
+
+/* the mobile buy bar on the product page (data-buybar on <html>) pushes the WhatsApp button up */
+@media (width < 64rem) {
+  html[data-buybar='on'] .whatsapp-float {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
+  /* keyboard focus scrolls clear of the bar (WCAG 2.4.11 focus not obscured) */
+  html[data-buybar='on'] {
+    scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
+  /* room so the bar never covers the end of the footer */
+  html[data-buybar='on'] body {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* horizontal scroll rows that end at the screen edge hint that there is more to the right */
+@utility fade-right {
+  mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+}
+
+/* respect the OS "reduce motion" setting everywhere (zooms, chevrons, skeleton pulse) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* horizontal rails scroll by swipe/arrows; the native scrollbar is hidden */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* menus, search and dialogs enter with a short fade + slide (exit is instant) */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* hero carousel: each new slide fades in */
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* loading placeholder shared by every skeleton */
+@utility skeleton {
+  background-color: #e8e8ed;
+  border-radius: 0.5rem;
+  animation: var(--animate-pulse);
+}

@@ -19,14 +19,12 @@ const envSchema = z.object({
 
   POLAR_CHECKOUT_PRODUCT_ID: z.string().uuid(),
 
-  STREAM_API_KEY: z.string().min(1),
-  STREAM_API_SECRET: z.string().min(1),
-
   IMAGEKIT_PUBLIC_KEY: z.string().min(1),
   IMAGEKIT_PRIVATE_KEY: z.string().min(1),
   IMAGEKIT_URL_ENDPOINT: z.string().url(),
 
-  SENTRY_DSN: z.string().url().optional(),
+  // an empty value in .env (`SENTRY_DSN=`) means "disabled", not an invalid URL
+  SENTRY_DSN: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -18,21 +18,16 @@ const apiBase = import.meta.env.VITE_API_URL ?? '';
 const tracePropagationTargets =
   apiBase.length > 0 ? [apiBase] : typeof window !== 'undefined' ? [window.location.origin] : [];
 
+// Replays keep Sentry's default masking: text and inputs (passwords, addresses) are never recorded.
+// Only sessions that hit an error are replayed, to stay inside the free quota.
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
-  sendDefaultPii: true,
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration({
-      maskAllText: false,
-      maskAllInputs: false,
-      blockAllMedia: false,
-    }),
-  ],
-  tracesSampleRate: 1.0,
+  sendDefaultPii: false,
+  integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+  tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
   tracePropagationTargets: tracePropagationTargets,
-  replaysSessionSampleRate: 1.0,
+  replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 1.0,
   enableLogs: true,
 });

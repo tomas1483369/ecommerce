@@ -1,87 +1,40 @@
-import { CatalogProductCard } from '../components/CatalogProductCard';
-import { HomeHero } from '../components/HomeHero';
+import { BenefitsSection } from '../components/home/BenefitsSection';
+import { CampaignSection } from '../components/home/CampaignSection';
+import { EssentialsSection } from '../components/home/EssentialsSection';
+import { FavoritesSection } from '../components/home/FavoritesSection';
+import { HeroCarousel } from '../components/home/HeroCarousel';
+import { InspirationSection } from '../components/home/InspirationSection';
+import { OffersSection } from '../components/home/OffersSection';
+import { Container } from '../components/Container';
 import { PageError } from '../components/PageError';
-import { TrustStrip } from '../components/TrustStrip';
-import { useHomeCatalog } from '../hooks/useHomeCatalog';
+import { HERO_SLIDES } from '../content/home';
+import { useCatalog } from '../hooks/useCatalog';
 
+// Section order and color budget follow docs/diseno.md ("Inicio"): one red band (offers), one
+// black band (favorites), everything else light; each section has its own composition.
 function HomePage() {
-  const {
-    products,
-    categories,
-    categoryChipsLoading,
-    categoryFilter,
-    error,
-    loadingCategories,
-    loadingList,
-    setCategory,
-  } = useHomeCatalog();
+  const { products, bySlug, isLoading, error, refetch } = useCatalog();
 
   return (
-    <div className="space-y-12">
-      <HomeHero categories={categories} loadingCategories={loadingCategories} />
-
-      <TrustStrip />
-
-      {/* CATELOG */}
-      <section id="catolag" className="scroll-mt-24">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-base-content md:text-2xl uppercase font-mono">
-              Catalog
-            </h2>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className={`btn btn-sm ${!categoryFilter ? 'btn-primary' : 'btn-ghost border border-base-300'}`}
-              onClick={() => setCategory('')}
-            >
-              All
-            </button>
-
-            {categoryChipsLoading
-              ? [1, 2, 3, 4].map((i) => (
-                  <div key={i} className="skeleton h-8 w-20 rounded-lg" aria-hidden />
-                ))
-              : categories.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    className={`btn btn-sm ${categoryFilter === c ? 'btn-primary' : 'btn-ghost border border-base-300'}`}
-                    onClick={() => setCategory(c)}
-                  >
-                    {c}
-                  </button>
-                ))}
-          </div>
-        </div>
-
-        {loadingList ? (
-          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <li key={i}>
-                <div className="skeleton h-96 w-full rounded-box" />
-              </li>
-            ))}
-          </ul>
-        ) : error ? (
-          <PageError message="We couldn't load products. Please try again in a moment." />
-        ) : products.length === 0 ? (
-          <div className="rounded-box border border-base-300 bg-base-100 py-16 text-center text-base-content/60">
-            No products in this category yet.
-          </div>
-        ) : (
-          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {products.map((p) => (
-              <li key={p.id}>
-                <CatalogProductCard product={p} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </div>
+    <>
+      <h1 className="sr-only">TecnoSoftware: tecnología en Colombia</h1>
+      <HeroCarousel slides={HERO_SLIDES} />
+      {error ? (
+        <Container className="py-16">
+          <PageError
+            message="No pudimos cargar los productos. Revisa tu conexión e intenta de nuevo."
+            onRetry={refetch}
+          />
+        </Container>
+      ) : (
+        <EssentialsSection products={products} isLoading={isLoading} />
+      )}
+      {products.length > 0 ? <OffersSection bySlug={bySlug} /> : null}
+      <CampaignSection />
+      <FavoritesSection />
+      <InspirationSection />
+      <BenefitsSection />
+    </>
   );
 }
 export default HomePage;

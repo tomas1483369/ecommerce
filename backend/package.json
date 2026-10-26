@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch --import ./src/instrument.ts src/index.ts",
-    "build": "tsc",
-    "start": "node --import ./src/instrument.ts dist/index.js",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node --import ./dist/instrument.js dist/index.js",
     "db:push": "drizzle-kit push",
-    "db:seed":"tsx scripts/seed.ts",
+    "db:seed": "tsx scripts/seed.ts",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -21,15 +23,12 @@
     "@clerk/express": "^2.1.0",
     "@imagekit/nodejs": "^7.4.0",
     "@sentry/node": "^10.48.0",
-    "@sentry/profiling-node": "^10.48.0",
     "cors": "^2.8.5",
-    "cron": "^4.4.0",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.3",
     "express": "^5.2.1",
     "pg": "^8.13.1",
     "standardwebhooks": "^1.0.0",
-    "stream-chat": "^8.57.6",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -40,6 +39,7 @@
     "drizzle-kit": "^0.30.4",
     "prettier": "^3.9.8",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^5.0.5"
   }
 }

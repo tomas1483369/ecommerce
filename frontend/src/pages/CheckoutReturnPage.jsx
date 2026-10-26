@@ -1,15 +1,15 @@
 import { Link, useSearchParams } from 'react-router';
-import { useCart } from '../store/cart';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { CheckCircle2Icon, PackageIcon } from 'lucide-react';
+import { CheckIcon } from 'lucide-react';
+import { Container } from '../components/Container';
+import { buttonClass } from '../lib/ui';
+import { useCart } from '../store/cart';
 
 function CheckoutReturnPage() {
   const clearCart = useCart((s) => s.clear);
-
   const [params] = useSearchParams();
   const checkoutId = params.get('checkout_id');
-
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -18,31 +18,24 @@ function CheckoutReturnPage() {
   }, [queryClient, clearCart]);
 
   return (
-    <div className="mx-auto max-w-lg text-center">
-      <div className="avatar placeholder mx-auto mb-4">
-        <div className="w-16 rounded-full bg-success/20 text-success flex items-center justify-center">
-          <CheckCircle2Icon className="size-10" aria-hidden />
-        </div>
+    <Container className="py-20">
+      <div className="mx-auto max-w-lg text-center">
+        <span className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-success-soft">
+          <CheckIcon className="size-8 text-success" aria-hidden />
+        </span>
+        <h1 className="text-3xl font-extrabold tracking-tight">¡Gracias por tu compra!</h1>
+        <p className="mt-4 text-body">
+          Tu pedido se crea cuando el pago se confirma. Desde tu lista de pedidos puedes abrirlo y
+          escribirnos por WhatsApp si tienes dudas.
+        </p>
+        {checkoutId ? (
+          <p className="mt-3 font-mono text-xs text-muted">Referencia: {checkoutId}</p>
+        ) : null}
+        <Link to="/orders" className={buttonClass({ variant: 'dark', className: 'mt-8' })}>
+          Ver mis pedidos
+        </Link>
       </div>
-
-      <h1 className="text-2xl font-bold text-base-content">Thanks for your order</h1>
-
-      <p className="mt-4 text-base-content/70">
-        Your order is created after payment is confirmed. Open it from your orders list for{' '}
-        <strong className="text-base-content">support chat</strong> (it appears there as{' '}
-        <strong className="text-base-content">paid</strong>). We&apos;ll send video invites in that
-        thread when needed.
-      </p>
-
-      {checkoutId ? (
-        <p className="mt-2 font-mono text-xs text-base-content/50">Checkout: {checkoutId}</p>
-      ) : null}
-
-      <Link to="/orders" className="btn btn-primary mt-8 gap-2">
-        <PackageIcon className="size-4" aria-hidden />
-        View orders
-      </Link>
-    </div>
+    </Container>
   );
 }
 

@@ -18,15 +18,15 @@
  * Text overlay (brand watermark). Chained after base transforms with ":".
  * @see https://imagekit.io/docs/add-overlays-on-images
  */
-function buildNorthwindTextLayer({ w, h }) {
+function buildWatermarkTextLayer({ w, h }) {
   const maxDim = Math.max(w != null && w > 0 ? w : 0, h != null && h > 0 ? h : 0, 200);
-  let fs = 28;
+  let fs;
   if (maxDim <= 180) fs = 11;
   else if (maxDim <= 240) fs = 13;
   else if (maxDim <= 400) fs = 16;
   else if (maxDim <= 700) fs = 22;
   else fs = 30;
-  return `l-text,i-Northwind,fs-${fs},co-FFFFFF,bg-0F172A90,pa-8_12,lx-N14,ly-14,lap-top_right,l-end`;
+  return `l-text,i-TecnoSoftware,fs-${fs},co-FFFFFF,bg-00000090,pa-8_12,lx-N14,ly-14,lap-top_right,l-end`;
 }
 
 /**
@@ -49,7 +49,7 @@ function buildTrSegment({ w, h, q = 80, f = 'auto', crop, watermark = false }) {
   parts.push(`f-${f}`);
   const base = `tr:${parts.join(',')}`;
   if (!watermark) return base;
-  return `${base}:${buildNorthwindTextLayer({ w, h })}`;
+  return `${base}:${buildWatermarkTextLayer({ w, h })}`;
 }
 
 /**
@@ -120,7 +120,7 @@ export function imageKitOptimizedUrl(url, opts = {}) {
 }
 
 /**
- * Same optimizations as {@link imageKitOptimizedUrl} plus Northwind text overlay (for share/download).
+ * Same optimizations as {@link imageKitOptimizedUrl} plus TecnoSoftware text overlay (for share/download).
  * Non-ImageKit URLs are returned unchanged.
  */
 export function imageKitWatermarkedUrl(url, opts = {}) {

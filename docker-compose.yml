@@ -1,0 +1,48 @@
+# Entorno local.
+#   Solo base de datos (desarrollo con recarga en caliente):  docker compose up -d db
+#   App completa (misma imagen que producción):              docker compose --env-file backend/.env up --build
+# La app queda en http://localhost:3001. El esquema se crea con `npm run db:push` desde el host.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: tecno
+      POSTGRES_PASSWORD: tecno
+      POSTGRES_DB: tecnosoftware
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tecno -d tecnosoftware']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      args:
+        # Valores públicos para el build del frontend; se toman de backend/.env vía --env-file.
+        VITE_CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY:-} # temporal hasta F5
+        VITE_IMAGEKIT_URL_ENDPOINT: ${IMAGEKIT_URL_ENDPOINT:-}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_WHATSAPP_NUMBER: ${VITE_WHATSAPP_NUMBER:-}
+        VITE_INSTAGRAM_URL: ${VITE_INSTAGRAM_URL:-}
+        VITE_FACEBOOK_URL: ${VITE_FACEBOOK_URL:-}
+        VITE_TIKTOK_URL: ${VITE_TIKTOK_URL:-}
+    env_file:
+      - path: backend/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://tecno:tecno@db:5432/tecnosoftware
+      FRONTEND_URL: http://localhost:3001
+    ports:
+      - '3001:3001'
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

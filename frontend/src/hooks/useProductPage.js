@@ -9,6 +9,8 @@ export function useProductPage() {
     queryKey: ['product', slug],
     queryFn: () => apiFetch(`/api/products/${slug}`),
     enabled: Boolean(slug),
+    // a missing product will not appear by retrying: show "No encontramos este producto" at once
+    retry: (count, err) => err?.status !== 404 && count < 2,
   });
 
   return {

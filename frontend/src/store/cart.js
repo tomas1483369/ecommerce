@@ -1,5 +1,5 @@
-import { create } from "zustand"
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 // persist will save the cart items to localStorage
 export const useCart = create(
@@ -37,6 +37,6 @@ export const useCart = create(
         set({ items: [] });
       },
     }),
-    { name: "northwind-cart" },
+    { name: 'tecnosoftware-cart' },
   ),
 );

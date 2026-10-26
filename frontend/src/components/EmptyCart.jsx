@@ -1,29 +1,21 @@
-import { ArrowRightIcon, PackageIcon, ShoppingCartIcon } from 'lucide-react';
+import { ShoppingCartIcon } from 'lucide-react';
 import { Link } from 'react-router';
+import { buttonClass } from '../lib/ui';
 
 export default function EmptyCart() {
   return (
-    <div className="mx-auto max-w-lg rounded-2xl border border-dashed border-base-300 bg-linear-to-b from-base-200/50 to-base-100 px-6 py-12 text-center sm:px-10 sm:py-16">
-      <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-base-300/60 text-primary/80 ring-4 ring-base-200/80">
-        <ShoppingCartIcon className="size-10" aria-hidden />
-      </div>
-      <h2 className="text-xl font-semibold tracking-tight text-base-content sm:text-2xl">
-        Your cart is empty
-      </h2>
-      <p className="mt-2 text-sm leading-relaxed text-base-content/65">
-        When you add products from the catalog, they&apos;ll show up here. Ready when you are.
-      </p>
+    <div className="mx-auto max-w-lg rounded-3xl bg-paper px-6 py-14 text-center shadow-card sm:px-10">
+      <span className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-paper-soft">
+        <ShoppingCartIcon className="size-9 text-muted" strokeWidth={1.5} aria-hidden />
+      </span>
+      <h2 className="text-2xl font-extrabold tracking-tight">Tu carrito está vacío</h2>
+      <p className="mt-2 text-body">Cuando agregues productos los verás aquí.</p>
       <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-        <Link to="/#catalog" className="btn btn-primary gap-2 shadow-md">
-          Browse catalog
-          <ArrowRightIcon className="size-4" aria-hidden />
+        <Link to="/#catalogo" className={buttonClass({ variant: 'primary' })}>
+          Ver productos
         </Link>
-        <Link
-          to="/orders"
-          className="btn btn-ghost gap-2 border border-white bg-base-100 hover:border-primary/35 hover:bg-base-200/50"
-        >
-          <PackageIcon className="size-4" aria-hidden />
-          View orders
+        <Link to="/orders" className={buttonClass({ variant: 'outline' })}>
+          Mis pedidos
         </Link>
       </div>
     </div>

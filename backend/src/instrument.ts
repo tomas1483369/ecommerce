@@ -1,20 +1,17 @@
 import 'dotenv/config';
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 const dsn = process.env.SENTRY_DSN;
+const isProduction = process.env.NODE_ENV === 'production';
 
-// node profiling integration is for performance debugging in Sentry.
-
+// Sentry is optional: without SENTRY_DSN nothing is sent.
+// Low trace sampling in production keeps us inside the free quota.
 if (dsn) {
   Sentry.init({
     dsn,
     environment: process.env.NODE_ENV ?? 'development',
-    integrations: [nodeProfilingIntegration()],
     enableLogs: true,
-    tracesSampleRate: 1.0,
-    profileSessionSampleRate: 1.0,
-    profileLifecycle: 'trace',
-    sendDefaultPii: true,
+    tracesSampleRate: isProduction ? 0.1 : 1.0,
+    sendDefaultPii: false,
   });
 }

@@ -1,0 +1,395 @@
+[
+  {
+    "id": "harness-verde",
+    "phase": "F0",
+    "category": "infra",
+    "description": "El proyecto se prepara y verifica con un solo comando",
+    "steps": [
+      "Ejecutar ./init.sh en un clon limpio",
+      "Termina con 'OK: proyecto en verde'"
+    ],
+    "passes": true
+  },
+  {
+    "id": "docker-local",
+    "phase": "F0",
+    "category": "infra",
+    "description": "La app completa arranca localmente con Docker",
+    "steps": [
+      "docker compose up -d db",
+      "npm run db:push y npm run db:seed contra la BD local",
+      "docker compose --env-file backend/.env up --build",
+      "http://localhost:3001 muestra la tienda y /health responde { ok: true }"
+    ],
+    "passes": false
+  },
+  {
+    "id": "sin-codigo-muerto",
+    "phase": "F1",
+    "category": "limpieza",
+    "description": "No quedan la demo de Sentry, el cron de keep-alive ni integraciones descartadas",
+    "steps": [
+      "La ruta /demo-sentry no existe",
+      "backend/src/lib/cron.ts no existe",
+      "Las dependencias del package.json coinciden con los ADR aceptados"
+    ],
+    "passes": false
+  },
+  {
+    "id": "marca-tecnosoftware",
+    "phase": "F2",
+    "category": "diseño",
+    "description": "La marca visible es TecnoSoftware en navbar, footer, título, favicon y marca de agua",
+    "steps": [
+      "Abrir la página de inicio: navbar y footer dicen TecnoSoftware",
+      "La pestaña del navegador dice TecnoSoftware",
+      "Una imagen de producto con marca de agua muestra 'TecnoSoftware'",
+      "Buscar 'Northwind' y 'Ecommerce' en frontend/src no da resultados visibles"
+    ],
+    "passes": false
+  },
+  {
+    "id": "colores-sin-daisyui",
+    "phase": "F2",
+    "category": "diseño",
+    "description": "La interfaz usa solo los tokens rojo/negro/blanco y no queda DaisyUI",
+    "steps": [
+      "daisyui no aparece en frontend/package.json ni en index.css",
+      "No hay clases de DaisyUI (btn, card, badge, navbar, modal) en frontend/src",
+      "Fondo principal blanco, acentos rojos, secciones negras"
+    ],
+    "passes": true
+  },
+  {
+    "id": "navbar-escritorio",
+    "phase": "F2",
+    "category": "navbar",
+    "description": "En escritorio la navbar muestra categorías y abre un megamenú al pasar el mouse o enfocar con teclado",
+    "steps": [
+      "Ventana de 1280px de ancho",
+      "Se ven logo, Tienda, Celulares, Accesorios, Wearables, Televisores, Sonido, Cámaras y los íconos buscar/carrito/cuenta",
+      "Pasar el mouse por Celulares abre el megamenú con tiles e imágenes y la columna 'Descubre'",
+      "Con Tab hasta Celulares y Enter también se abre; Esc lo cierra y el foco vuelve a Celulares",
+      "La categoría activa queda subrayada en rojo"
+    ],
+    "passes": false
+  },
+  {
+    "id": "navbar-movil-acordeon",
+    "phase": "F2",
+    "category": "navbar",
+    "description": "En pantallas pequeñas la navbar se comprime y las categorías se ven en un acordeón",
+    "steps": [
+      "Ventana de 390px de ancho",
+      "Se ven el logo a la izquierda y, a la derecha, buscar, carrito, cuenta y el botón de menú en el extremo derecho, sin scroll horizontal (también a 360px)",
+      "La hamburguesa abre un panel con las 6 categorías como acordeón",
+      "Tocar Celulares despliega sus subcategorías; tocar Accesorios cierra Celulares y abre Accesorios",
+      "Esc o el botón cerrar ocultan el panel y el fondo vuelve a hacer scroll"
+    ],
+    "passes": false
+  },
+  {
+    "id": "textos-espanol",
+    "phase": "F3",
+    "category": "idioma",
+    "description": "Toda la interfaz está en español",
+    "steps": [
+      "Recorrer inicio, producto, carrito, pedidos, detalle de pedido y admin",
+      "No aparece texto en inglés visible para el usuario (botones, errores, estados vacíos, títulos)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "precios-cop",
+    "phase": "F3",
+    "category": "idioma",
+    "description": "Todos los precios se muestran en pesos colombianos",
+    "steps": [
+      "Un producto con price_cents 129990000 se ve como '$ 1.299.900' en tarjeta, detalle, carrito y pedido",
+      "El formulario del admin pide el precio en COP",
+      "formatPrice tiene test con COP"
+    ],
+    "passes": false
+  },
+  {
+    "id": "categorias-fijas",
+    "phase": "F4",
+    "category": "catalogo",
+    "description": "Los productos pertenecen a una de las 6 categorías: Celulares, Accesorios, Wearables, Televisores, Sonido, Cámaras",
+    "steps": [
+      "El admin solo ofrece esas 6 categorías",
+      "La API rechaza con 400 una categoría distinta",
+      "El seed crea productos en las 6 categorías"
+    ],
+    "passes": false
+  },
+  {
+    "id": "stock-admin",
+    "phase": "F4",
+    "category": "stock",
+    "description": "El administrador ve y edita el stock de cada producto",
+    "steps": [
+      "La tabla del admin muestra la columna Stock",
+      "Editar un producto y cambiar su stock a 3 lo guarda",
+      "No se acepta stock negativo"
+    ],
+    "passes": false
+  },
+  {
+    "id": "stock-tienda",
+    "phase": "F4",
+    "category": "stock",
+    "description": "La tienda respeta el stock disponible",
+    "steps": [
+      "Un producto con stock 0 muestra 'Agotado' y no se puede añadir al carrito",
+      "Con stock 2 no se pueden poner 3 unidades en el carrito",
+      "Si el stock baja después de añadirlo al carrito, el checkout responde con un error claro"
+    ],
+    "passes": false
+  },
+  {
+    "id": "stock-descuento",
+    "phase": "F6",
+    "category": "stock",
+    "description": "El stock se descuenta solo cuando el pago se aprueba, una sola vez",
+    "steps": [
+      "Pagar 2 unidades en sandbox de Wompi con pago aprobado: el stock baja en 2",
+      "Reenviar el mismo evento del webhook no vuelve a descontar",
+      "Un pago rechazado no descuenta stock"
+    ],
+    "passes": false
+  },
+  {
+    "id": "auth-registro-login",
+    "phase": "F5",
+    "category": "auth",
+    "description": "El cliente se registra, inicia y cierra sesión con email y contraseña, sin Clerk",
+    "steps": [
+      "Ir a /registro, crear una cuenta con email y contraseña",
+      "Cerrar sesión e iniciar sesión en /ingresar con esas credenciales",
+      "Contraseña incorrecta muestra un error genérico",
+      "No hay llamadas de red a dominios de Clerk"
+    ],
+    "passes": false
+  },
+  {
+    "id": "auth-roles",
+    "phase": "F5",
+    "category": "auth",
+    "description": "Solo los administradores acceden al panel de admin",
+    "steps": [
+      "Un cliente que abre /admin es redirigido",
+      "Un cliente que llama a /api/admin/* recibe 403",
+      "Un admin creado con el script ve y usa el panel"
+    ],
+    "passes": false
+  },
+  {
+    "id": "pago-wompi",
+    "phase": "F6",
+    "category": "pagos",
+    "description": "El cliente paga su carrito con Wompi y ve su pedido confirmado",
+    "steps": [
+      "Con sesión iniciada, carrito con productos, clic en Pagar",
+      "Redirige al Web Checkout de Wompi (sandbox) con el total correcto en COP",
+      "Pagar con la tarjeta de prueba aprobada",
+      "Vuelve a la tienda, la página de retorno muestra 'Pago aprobado' y el pedido aparece en /orders como pagado"
+    ],
+    "passes": false
+  },
+  {
+    "id": "webhook-wompi-seguro",
+    "phase": "F6",
+    "category": "pagos",
+    "description": "El webhook de Wompi rechaza eventos sin firma válida y es idempotente",
+    "steps": [
+      "Un evento con checksum incorrecto recibe 400 y no crea pedido",
+      "Un evento válido repetido no crea un segundo pedido",
+      "Tests unitarios de firma de integridad y checksum en verde"
+    ],
+    "passes": false
+  },
+  {
+    "id": "home-secciones",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "La página de inicio tiene bloques de ancho completo que alternan blanco y negro",
+    "steps": [
+      "Se ve un bloque claro y uno negro con título, subtítulo, botones 'Comprar' y 'Ver más' e imagen grande",
+      "Debajo, una fila de accesos por categoría con íconos",
+      "Los bloques se editan desde el admin sin tocar código",
+      "En 390px de ancho los bloques se apilan sin scroll horizontal"
+    ],
+    "passes": false
+  },
+  {
+    "id": "deploy-railway",
+    "phase": "F8",
+    "category": "infra",
+    "description": "La tienda funciona en producción en Railway",
+    "steps": [
+      "El servicio de Railway construye el Dockerfile y el healthcheck /health pasa",
+      "Las migraciones se aplican solas al desplegar",
+      "Se puede registrar un usuario, comprar en sandbox de Wompi y ver el pedido en el dominio de Railway"
+    ],
+    "passes": false
+  },
+  {
+    "id": "footer-3-columnas",
+    "phase": "F2",
+    "category": "diseño",
+    "description": "El footer tiene 3 columnas (Tienda, Soporte, TecnoSoftware) y se vuelve acordeón en móvil",
+    "steps": [
+      "A 1280px se ven 3 columnas con títulos en negrita, separadas por líneas verticales",
+      "Los enlaces de Tienda llevan a las páginas de cada categoría",
+      "El enlace WhatsApp abre wa.me con el número de la tienda",
+      "A 390px cada columna es un acordeón que se abre al tocar su título"
+    ],
+    "passes": false
+  },
+  {
+    "id": "accesos-categoria",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "La página de inicio tiene la fila de accesos por categoría estilo Samsung",
+    "steps": [
+      "Bajo el título 'Lo esencial de TecnoSoftware' se ven 7 tiles a todo el ancho con ícono y nombre: Novedades, Celulares, Accesorios, Wearables, Televisores, Sonido, Cámaras",
+      "El tile elegido tiene borde negro y el carrusel de debajo muestra productos de esa categoría",
+      "A 390px la fila se desplaza horizontalmente sin romper el layout"
+    ],
+    "passes": true
+  },
+  {
+    "id": "carrusel-banner",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "El hero es un carrusel de productos que avanza solo, con flechas laterales y líneas de progreso",
+    "steps": [
+      "Avanza solo cada ~6 s entre al menos 4 productos, también con el mouse encima",
+      "Hay flechas discretas a la izquierda y a la derecha que cambian la diapositiva",
+      "Abajo hay una línea por diapositiva; la activa se llena de rojo mostrando cuánto falta para el siguiente cambio, y al hacer clic en una línea se va a esa diapositiva",
+      "No hay textos ni pestañas para mover el carrusel",
+      "Tiene un botón de pausa pequeño; también se pausa mientras se navega con teclado dentro del carrusel",
+      "Con prefers-reduced-motion sigue avanzando, pero sin animación",
+      "En móvil se puede deslizar con el dedo"
+    ],
+    "passes": true
+  },
+  {
+    "id": "carrusel-productos",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "Las filas de productos son carruseles horizontales estilo Apple",
+    "steps": [
+      "La siguiente tarjeta asoma en el borde derecho",
+      "En escritorio las flechas anterior/siguiente desplazan una tarjeta y se desactivan en los extremos",
+      "En móvil se desliza con el dedo y encaja (scroll-snap) en cada tarjeta"
+    ],
+    "passes": true
+  },
+  {
+    "id": "tarjeta-producto",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "La tarjeta de producto es mínima y centrada (estilo Apple/Xiaomi)",
+    "steps": [
+      "Muestra foto grande, etiqueta opcional, nombre, una frase corta y 'Desde $ precio' en COP",
+      "Tiene un botón 'Comprar' y un enlace 'Más información ›'",
+      "No muestra selector de colores, capacidades ni descuentos",
+      "En una fila, nombres, precios y botones quedan alineados aunque las frases tengan distinto largo",
+      "Un producto sin stock muestra 'Agotado' en lugar de 'Comprar'"
+    ],
+    "passes": false
+  },
+  {
+    "id": "pagina-categoria",
+    "phase": "F7",
+    "category": "catalogo",
+    "description": "Cada categoría tiene su propia página, generada con una sola plantilla, y la de inicio ya no lista todo el catálogo",
+    "steps": [
+      "/categoria/celulares muestra banner 'Celulares' con su foto y frase, y solo productos de esa categoría",
+      "Las 6 categorías usan la misma plantilla con su propio banner (tema claro u oscuro) y sus subcategorías",
+      "Elegir una subcategoría filtra la grilla; ordenar por menor precio la reordena; 'solo disponibles' oculta los agotados",
+      "Un slug inexistente muestra una página 404 en español",
+      "La página de inicio no muestra la grilla completa de productos"
+    ],
+    "passes": false
+  },
+  {
+    "id": "variantes-producto",
+    "phase": "F4",
+    "category": "catalogo",
+    "description": "Un producto tiene variantes de color y capacidad, cada una con su precio y stock",
+    "steps": [
+      "En el admin, crear 'Galaxy S26' con variantes Negro 256 GB y Negro 512 GB con precios y stock distintos",
+      "En la página del producto, elegir 512 GB cambia el precio mostrado",
+      "Elegir un color cambia la imagen si la variante tiene foto propia",
+      "Una variante sin stock aparece deshabilitada; si ninguna tiene stock, el producto dice 'Agotado'",
+      "El carrito y el pedido muestran 'Galaxy S26 · Negro · 512 GB'"
+    ],
+    "passes": false
+  },
+  {
+    "id": "ofertas-tiempo-limitado",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "La página de inicio tiene la zona 'Ofertas por tiempo limitado' con pestañas por categoría",
+    "steps": [
+      "Se ven pestañas de texto (Destacados, Celulares, Televisores y sonido, Wearables, Cámaras) y la activa está subrayada",
+      "Cambiar de pestaña cambia las 4 tarjetas de oferta",
+      "Cada tarjeta muestra imagen con insignia de descuento, 'Nombre a' + precio en COP y la condición de la oferta",
+      "Las ofertas y sus fechas se administran desde el admin"
+    ],
+    "passes": false
+  },
+  {
+    "id": "carrusel-oscuro",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "La página de inicio tiene un carrusel oscuro con un producto destacado por categoría",
+    "steps": [
+      "Sección de fondo negro con título 'Lo mejor de cada categoría'",
+      "Hay una tarjeta por categoría con nombre, una frase, 'Comprar' y 'Más información', sin precio",
+      "Avanza solo cada ~5 s y vuelve al inicio; las flechas lo mueven; tiene botón de pausa; en móvil se desliza con el dedo",
+      "El producto destacado de cada categoría se elige desde el admin"
+    ],
+    "passes": false
+  },
+  {
+    "id": "beneficios",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "La página de inicio tiene la sección 'Beneficios' con 4 tarjetas",
+    "steps": [
+      "Se ven 'Paga como prefieras', 'Envíos a toda Colombia', 'Garantía' y 'Soporte por WhatsApp' con ícono, texto y 'Más información'",
+      "No hay promesas de envío o garantía sin condiciones confirmadas por el usuario",
+      "A 390px las tarjetas se apilan"
+    ],
+    "passes": true
+  },
+  {
+    "id": "seccion-inspirate",
+    "phase": "F7",
+    "category": "diseño",
+    "description": "La página de inicio tiene la sección editorial oscura 'Inspírate' sin precios",
+    "steps": [
+      "Fondo negro con 3 tarjetas altas: foto, título en mayúsculas, texto y 'DESCUBRIR MÁS' con línea roja",
+      "Ninguna tarjeta muestra precio",
+      "Cada tarjeta lleva a una página o categoría relacionada",
+      "A 390px las tarjetas se apilan"
+    ],
+    "passes": true
+  },
+  {
+    "id": "whatsapp-flotante",
+    "phase": "F2",
+    "category": "diseño",
+    "description": "Hay un botón flotante de WhatsApp en la esquina inferior derecha de todas las páginas",
+    "steps": [
+      "En escritorio y móvil se ve un botón redondo verde con el logo de WhatsApp abajo a la derecha",
+      "No tapa la navbar, el menú móvil ni los modales",
+      "Con VITE_WHATSAPP_NUMBER configurado abre wa.me con un mensaje escrito en una pestaña nueva"
+    ],
+    "passes": false
+  }
+]

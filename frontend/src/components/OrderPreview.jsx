@@ -2,51 +2,44 @@ import { PackageIcon } from 'lucide-react';
 import { IK_PRESETS, imageKitOptimizedUrl } from '../lib/imagekitUrl.js';
 
 const SIZES = {
-  md: 'h-[5.5rem] w-[5.5rem]',
-  lg: 'h-32 w-32 sm:h-36 sm:w-36',
+  md: 'size-[5.5rem]',
+  lg: 'size-32 sm:size-36',
 };
 
+function Thumb({ item, preset, iconClass }) {
+  return item.imageUrl ? (
+    <img
+      src={imageKitOptimizedUrl(item.imageUrl, preset)}
+      alt=""
+      className="h-full w-full object-contain"
+      loading="lazy"
+      decoding="async"
+    />
+  ) : (
+    <span className="flex h-full w-full items-center justify-center">
+      <PackageIcon className={`${iconClass} text-line`} aria-hidden />
+    </span>
+  );
+}
+
+// Order thumbnail: one product image, or a 2×2 mosaic with a "+N" counter.
 export function OrderPreview({ items, size = 'md' }) {
   const box = SIZES[size] ?? SIZES.md;
-  const ikPreset = size === 'lg' ? IK_PRESETS.orderPreviewLg : IK_PRESETS.orderPreviewMd;
+  const preset = size === 'lg' ? IK_PRESETS.orderPreviewLg : IK_PRESETS.orderPreviewMd;
+  const iconClass = size === 'lg' ? 'size-12' : 'size-8';
 
   if (!items?.length) {
     return (
-      <div
-        className={`flex shrink-0 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200/60 ${box}`}
-      >
-        <PackageIcon
-          className={size === 'lg' ? 'size-12 text-base-content/25' : 'size-8 text-base-content/25'}
-          aria-hidden
-        />
+      <div className={`flex shrink-0 items-center justify-center rounded-2xl bg-paper-soft ${box}`}>
+        <PackageIcon className={`${iconClass} text-line`} aria-hidden />
       </div>
     );
   }
 
   if (items.length === 1) {
-    const p = items[0];
     return (
-      <div
-        className={`relative shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-md ring-1 ring-base-300/40 ${box}`}
-      >
-        {p.imageUrl ? (
-          <img
-            src={imageKitOptimizedUrl(p.imageUrl, ikPreset)}
-            alt=""
-            className="h-full w-full object-cover"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-base-300 to-base-200">
-            <PackageIcon
-              className={
-                size === 'lg' ? 'size-12 text-base-content/25' : 'size-8 text-base-content/25'
-              }
-              aria-hidden
-            />
-          </div>
-        )}
+      <div className={`shrink-0 overflow-hidden rounded-2xl bg-paper ${box}`}>
+        <Thumb item={items[0]} preset={preset} iconClass={iconClass} />
       </div>
     );
   }
@@ -57,28 +50,16 @@ export function OrderPreview({ items, size = 'md' }) {
 
   return (
     <div
-      className={`grid shrink-0 grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden rounded-2xl border border-base-300 bg-base-200/90 p-0.5 shadow-md ring-1 ring-base-300/40 ${box}`}
+      className={`grid shrink-0 grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden rounded-2xl bg-paper-soft p-0.5 ${box}`}
     >
-      {show.map((p, i) => (
+      {show.map((item, i) => (
         <div
-          key={`${p.slug}-${i}`}
-          className="relative min-h-0 overflow-hidden rounded-md bg-base-300"
+          key={`${item.slug}-${i}`}
+          className="relative min-h-0 overflow-hidden rounded-md bg-paper"
         >
-          {p.imageUrl ? (
-            <img
-              src={imageKitOptimizedUrl(p.imageUrl, ikPreset)}
-              alt=""
-              className="h-full w-full object-cover"
-              loading="lazy"
-              decoding="async"
-            />
-          ) : (
-            <div className="flex h-full min-h-[2rem] w-full items-center justify-center">
-              <PackageIcon className="size-4 text-base-content/30" aria-hidden />
-            </div>
-          )}
+          <Thumb item={item} preset={preset} iconClass="size-4" />
           {i === cap - 1 && rest > 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-neutral/90 text-sm font-bold tabular-nums text-neutral-content">
+            <div className="absolute inset-0 flex items-center justify-center bg-ink/80 text-sm font-bold text-white tabular-nums">
               +{rest}
             </div>
           ) : null}
